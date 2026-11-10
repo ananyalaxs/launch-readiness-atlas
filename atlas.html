@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-GB" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><!-- v1.5: keep search engines out until the public post (DEPLOY.md step 6) -->
+<!-- ===== Website build only (site/). Not in the review artifact. ===== -->
+<!-- The noindex meta now sits in the page head for both builds (v1.5). -->
+<script>
+/* Recipient tag. A link like https://YOUR-SITE/?r=sunstone records the event "r-sunstone"
+   in GoatCounter when analytics is switched on. With analytics off, this does nothing.
+   The tag is cleaned to letters, digits, - and _ (40 characters at most). */
+window.atlasRecipient = (new URLSearchParams(location.search).get("r") || "").toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 40);
+window.atlasCountRecipient = function () {
+  if (window.atlasRecipient && window.goatcounter && window.goatcounter.count)
+    window.goatcounter.count({path: "r-" + window.atlasRecipient, title: "Opened by " + window.atlasRecipient, event: true});
+};
+</script>
+<!-- Analytics ON (v1.7.1): GoatCounter site code ananyalaxs. No cookies; GoatCounter does not count file: or localhost pages. -->
+<script data-goatcounter="https://ananyalaxs.goatcounter.com/count" async src="https://gc.zgo.at/count.js" onload="atlasCountRecipient()"></script>
+<title>Psychedelic Launch Readiness Atlas (US)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/atlas.css">
+</head>
+<body>
+<div id="boot" aria-hidden="true"><div class="wordmark">Launch Readiness <i>Atlas</i></div></div>
+<header id="top">
+  <div class="brand"><a class="wordmark" id="homelink" href="index.html" title="Home">Launch Readiness <i>Atlas</i></a><span class="byline">Made by <a class="bylink" href="https://www.linkedin.com/in/ananya-laxshmivarahan/" target="_blank" rel="noopener">Ananya Laxshmivarahan</a></span></div>
+  <button class="topbtn" id="tourbtn" aria-haspopup="dialog" aria-label="How to use this atlas"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg><span class="t">How to use</span></button>
+  <nav class="views" aria-label="Views">
+    <a href="#map" data-view="map">Map</a><a href="#states" data-view="states">States</a><a href="#clinics" data-view="clinics">Clinics</a><a href="#methods" data-view="methods">Methods</a><a href="#about" data-view="about">About</a>
+  </nav>
+  <span class="pill" id="custompill" hidden title="Scores use your custom weights">Custom weights</span>
+  <span class="grow"></span>
+  <button class="topbtn" id="byobtn" aria-haspopup="dialog" aria-label="Your sites: upload a list of your own sites" title="Upload a list of your own sites to see only those on the map, matched to clinics that have run psychedelic trials."><svg viewBox="0 0 24 24"><path d="M12 3l7 9-7 9-7-9z"/></svg><span class="t">Your sites</span></button>
+  <button class="topbtn" id="scorebtn" aria-expanded="false" aria-controls="scoring" aria-label="Scoring weights"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="t">Scoring</span></button>
+  <button id="searchbtn" aria-label="Search clinics, cities, states and companies"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="hide-m sbtxt">Search clinics, cities, states, companies</span><kbd id="kbd">Ctrl K</kbd></button>
+  <button class="iconbtn" id="theme" aria-label="Switch to light theme"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z"/></svg></button>
+</header>
+
+<svg id="map" role="application" aria-label="Map of the United States. States are shaded by readiness score. Lights mark clinics that have run psychedelic trials."><g id="zoomg"><g id="states"></g></g><g id="tags"></g><g id="lights"></g><g id="mine" aria-label="Your sites"></g></svg>
+
+<aside id="rail" class="panel" aria-label="Filters">
+  <header><span class="caps" style="color:var(--ink)">Filters</span><span><button class="btn" id="clearall">Clear all</button> <button class="iconbtn" id="railclose" aria-label="Collapse filters" style="display:inline-grid;width:28px;height:28px;vertical-align:middle"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button></span></header>
+  <div class="body">
+    <div class="grp" id="statefacet"><button class="acc" type="button" aria-expanded="false" aria-controls="gb-state" data-acc="state"><span class="al" id="sthead">States</span><span class="acnt" data-cnt="state" hidden></span><span class="sr"> selected</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="gbody" id="gb-state" role="group" aria-labelledby="sthead" hidden><div class="gtools"><button class="gclear" id="stclear" hidden>Clear</button></div>
+      <div class="stchips" id="stchips" aria-label="Selected states"></div>
+      <input class="ctl" id="stsearch" type="search" placeholder="Search states" aria-label="Search states" autocomplete="off">
+      <div class="stlist" id="stlist" role="group" aria-label="State checklist"></div>
+      <div class="note" style="margin-top:6px">Tip: Shift or Cmd+click a state on the map to add or remove it.</div></div></div>
+    <div id="facets"></div>
+    <div class="grp" id="disfacet"><button class="acc" type="button" aria-expanded="false" aria-controls="gb-dis" data-acc="dis"><span class="al">Dissociative layer</span><span class="acnt" data-cnt="dis" hidden></span><span class="sr"> on</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="gbody" id="gb-dis" hidden><button class="opt" id="lgdis" aria-pressed="false"><span class="box"></span>Show ketamine and esketamine trial locations<span class="n" id="disn"></span></button>
+      <p class="note" style="margin:2px 0 8px">Psychiatric and substance-use trials only. Off by default, and never in any count or score.</p></div></div>
+    <div class="grp" id="lensbox"><button class="acc" type="button" aria-expanded="false" aria-controls="gb-co" data-acc="co"><span class="al">All companies</span><span class="acnt" data-cnt="co" hidden></span><span class="sr"> highlighted</span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <div class="gbody" id="gb-co" hidden>
+      <div class="lensbar" aria-live="polite"><div class="big" id="lensn"></div><div class="note" id="lenssub"></div>
+        <div class="row"><button class="btn primary" id="lensopen">Site list</button><button class="btn" id="lenscopy">Download CSV</button><button class="btn" id="lensclear">Clear</button></div></div>
+      <div id="colist"></div>
+      <p class="note" style="margin:6px 0 8px">Every company the build searched the registry for, plus every company with clinics on the map. <a href="#methods" data-goto="coreport">Details</a></p></div></div>
+  </div>
+</aside>
+<button class="iconbtn" id="railtoggle" aria-label="Show filters"><svg viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></svg></button>
+<button class="btn" id="mobfilters" aria-label="Open filters">Filters</button>
+
+<div id="legend" class="panel" aria-label="Legend"></div>
+<div id="zoom"><button class="iconbtn" id="zin" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button><button class="iconbtn" id="zout" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button><button class="iconbtn" id="zreset" aria-label="Reset view"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6.2M4 4v4h4"/></svg></button></div>
+
+<section id="strip" class="panel" aria-live="polite" aria-label="Summary for current filters"></section>
+<footer id="foot"><span><span class="fpre">Trial data: ClinicalTrials.gov, </span><span id="asof"></span></span><span class="fsep" aria-hidden="true">&middot;</span><span>Made by <a class="bylink" href="https://www.linkedin.com/in/ananya-laxshmivarahan/" target="_blank" rel="noopener">Ananya Laxshmivarahan</a></span><span class="flinks"><a href="#about">About</a> <a href="#methods" class="hide-m">Methods</a> <a href="#next">Next stage</a> <button class="linkish" data-gloss>Glossary</button></span></footer>
+<div id="tourring" aria-hidden="true" hidden></div>
+<section id="tour" class="panel" role="dialog" aria-modal="false" aria-labelledby="tourtitle" hidden></section>
+<div id="gloss" role="dialog" aria-modal="true" aria-labelledby="glosstitle" hidden><div class="box panel"><div class="ghead"><h2 id="glosstitle">Words used here</h2><button class="iconbtn" id="glossclose" aria-label="Close glossary"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div id="glossbody"></div></div></div>
+
+<aside id="drawer" class="panel" aria-label="Details" aria-hidden="true">
+  <button id="handle" aria-label="Resize details panel"></button>
+  <div class="dhead"><div id="dtitle"></div><button class="iconbtn x" id="dclose" aria-label="Close details (Esc)"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="dbody" id="dbody"></div>
+</aside>
+
+<main id="v-states" class="page" aria-label="State rankings"><div class="inner">
+  <div class="caps">States</div><h1>State rankings</h1>
+  <p class="lede" id="stlede">Readiness score and the layers it is built from, for all 50 states and DC. Click a row to open it on the map. Select up to 3 states to compare.</p>
+  <div id="stgroups" class="stgroups"></div>
+  <div class="tools"><input class="ctl" id="stq" placeholder="Filter states" aria-label="Filter states"><span class="grow"></span><button class="btn" id="stcmp" disabled>Compare selected</button></div>
+  <table class="grid" id="sttbl"></table></div></main>
+<main id="v-clinics" class="page" aria-label="Clinic directory"><div class="inner">
+  <div class="caps">Clinics</div><h1>Clinic directory</h1>
+  <p class="lede" id="cllede">Every US clinic that has run a registered trial of the drugs covered here, one row per clinic. Click a row to open the clinic's full page. The list follows the map's filters and company lens; type below to narrow it, or export it as CSV.</p>
+  <p class="note cldef" id="cldef">Each <b>company</b> gets one line, with the compounds it has tested at that clinic and its number of trials there. Status, companies and compounds come from ClinicalTrials.gov: a company is a lead sponsor the registry classes as industry, and a compound is the code the registry gives for the drug. Other sponsors, such as universities, are on each clinic's page.</p>
+  <div class="tools"><input class="ctl" id="clq" placeholder="Filter by name, city or company" aria-label="Filter clinics"><span class="note" id="clcount"></span><span class="grow"></span><button class="btn primary" id="clcopy">Download as CSV</button></div>
+  <p class="note csvmeta" id="clmeta">Source: ClinicalTrials.gov, data <span class="asofx"></span>. Facts only.</p>
+  <table class="grid" id="cltbl"></table></div></main>
+<main id="v-methods" class="page" aria-label="Methods"><div class="inner prose" id="methods"></div></main>
+<main id="v-about" class="page" aria-label="About"><div class="inner prose" id="about"></div></main>
+<main id="v-next" class="page" aria-label="Next stage"><div class="inner prose" id="limitsbody"></div></main>
+
+<div id="pal" role="dialog" aria-modal="true" aria-label="Search"><div class="box panel"><input id="palq" placeholder="Search clinics, cities, states, companies" aria-label="Search" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palres"><ul id="palres" role="listbox"></ul><div class="foot"><span>&uarr; &darr; to move</span><span>Enter to fly there</span><span>Esc to close</span></div></div></div>
+<div id="copyfb" role="dialog" aria-modal="true" aria-label="Copy CSV"><div class="box panel"><div class="caps" style="margin-bottom:8px">Your browser blocked the clipboard. Select all and copy.</div><textarea id="copyta" aria-label="CSV text"></textarea><div style="text-align:right;margin-top:8px"><button class="btn" id="copyclose">Close</button></div></div></div>
+<div id="toast" class="panel" role="status"></div>
+<section id="scoring" class="panel" hidden aria-label="Scoring weights"><header><span class="caps" style="color:var(--ink)">Scoring weights</span><span><button class="btn" id="scorereset">Reset to atlas defaults</button> <button class="iconbtn" id="scoreclose" aria-label="Close scoring" style="display:inline-grid;width:28px;height:28px;vertical-align:middle"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span></header><div id="scorebody"></div></section>
+<div id="dropzone" aria-hidden="true"><div>Drop a CSV to overlay your sites</div></div>
+<div id="byodlg" role="dialog" aria-modal="true" aria-labelledby="byotitle" aria-hidden="true"><div class="box panel">
+  <div id="byostep1"><div class="caps">Your sites</div><h2 id="byotitle">Overlay your own site list</h2>
+    <p class="lede">Upload a list of your own sites to see only those on the map, matched to clinics that have run psychedelic trials.</p>
+    <p class="privacy">Your file is processed in this browser and is never uploaded or stored. Closing or reloading the page removes it.</p>
+    <label class="drop" for="byofile"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span><b>Choose a CSV file</b> or drop it anywhere on the map</span><span class="note">Columns: site name, city, state, ZIP, optional lat/lon, tier, status, notes</span></label>
+    <input type="file" id="byofile" accept=".csv,text/csv,.txt" class="sr" aria-label="Choose a CSV file of your sites">
+    <div id="byoerr" class="err" role="alert" hidden></div>
+    <div class="alt"><span class="note">No file yet? Try the fictional Example Therapeutics list (25 sites), or copy a blank template.</span><button class="btn" id="byotemplate">Download CSV template</button><button class="btn primary" id="byosample">Try with sample data</button></div>
+    <div class="foot"><button class="btn" data-byoclose>Cancel</button></div></div>
+  <div id="byostep2" hidden><div class="caps">Your sites &middot; step 2 of 2</div><h2>Check the columns</h2><p class="note" id="byoname"></p>
+    <div id="byomap"></div><div class="err" id="byomaperr" role="status"></div>
+    <div class="caps">First 5 rows</div><div style="overflow:auto"><table class="grid" id="byoprev"></table></div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="byoback">Back</button><span class="grow"></span><button class="btn" data-byoclose>Cancel</button><button class="btn primary" id="byogo">Place and match sites</button></div></div>
+</div></div>
+<div id="tip" role="tooltip"></div>
+
+<script src="assets/atlas-1.js"></script>
+<script src="assets/atlas-2.js"></script>
+<script src="assets/atlas-3.js"></script>
+<script src="assets/atlas-4.js"></script>
+<script src="assets/atlas-5.js"></script>
+</body>
+</html>
